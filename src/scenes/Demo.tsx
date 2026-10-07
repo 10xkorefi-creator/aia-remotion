@@ -1,7 +1,7 @@
 import React from "react";
 import { AbsoluteFill, Interactive, interpolate, random, useCurrentFrame } from "remotion";
-import { BillCard, Check, Cursor, MaskWord, punch } from "../components";
-import { C, CLAMP, FONT, IN_OUT, MONO, OUT, SNAP, TRACK } from "../theme";
+import { Backdrop, BillCard, Bloom, Check, Cursor, glassLight, GradText, MaskWord, punch } from "../components";
+import { C, CLAMP, FONT, G, IN_OUT, MONO, OUT, SERIF, SNAP, TRACK } from "../theme";
 
 const ROWS: { k: string; v: string; ai?: boolean }[] = [
   { k: "Vendor", v: "Sharma Traders" },
@@ -37,25 +37,48 @@ export const Demo: React.FC = () => {
   const posted = frame >= CLICK + 2;
 
   return (
-    <AbsoluteFill name="Demo" style={{ backgroundColor: C.white, fontFamily: FONT, letterSpacing: TRACK, overflow: "hidden" }}>
+    <AbsoluteFill name="Demo" style={{ fontFamily: FONT, letterSpacing: TRACK, overflow: "hidden" }}>
+      <Backdrop mode="light" phase={200} />
       <AbsoluteFill
         style={{
-          scale: `${punch(frame, 0.05) * interpolate(frame, [95, 120], [1, 1.04], { ...CLAMP, easing: IN_OUT })}`,
+          scale: `${punch(frame, 0.04) * interpolate(frame, [95, 120], [1, 1.035], { ...CLAMP, easing: IN_OUT })}`,
         }}
       >
         {/* captions */}
         <Interactive.Div name="Captions" style={{ position: "absolute", left: 80, right: 80, top: 100, height: 200 }}>
           {CAPTIONS.map((c) => {
-            if (frame < c.from - 1 || frame >= c.to + 6) return null;
-            const pin = interpolate(frame, [c.from, c.from + 8], [0, 1], { ...CLAMP, easing: OUT });
-            const pout = interpolate(frame, [c.to, c.to + 6], [0, 1], { ...CLAMP, easing: OUT });
+            if (frame < c.from - 1 || frame >= c.to + 5) return null;
+            const pin = interpolate(frame, [c.from, c.from + 12], [0, 1], { ...CLAMP, easing: OUT });
+            const pout = interpolate(frame, [c.to, c.to + 5], [0, 1], { ...CLAMP, easing: OUT });
+            const last = c.text.lastIndexOf(" ");
             return (
-              <div key={c.step} style={{ position: "absolute", inset: 0, opacity: 1 - pout, translate: `0 ${-pout * 40}px` }}>
-                <div style={{ fontFamily: MONO, fontSize: 30, color: C.grey, letterSpacing: "0.04em", opacity: pin }}>
+              <div key={c.step} style={{ position: "absolute", inset: 0, opacity: 1 - pout, translate: `0 ${-pout * 60}px`, filter: `blur(${pout * 8}px)` }}>
+                <div
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 10,
+                    fontFamily: MONO,
+                    fontSize: 24,
+                    color: C.accent,
+                    letterSpacing: "0.08em",
+                    opacity: pin,
+                    background: "rgba(49,77,208,0.08)",
+                    border: "1.5px solid rgba(49,77,208,0.18)",
+                    borderRadius: 999,
+                    padding: "8px 18px",
+                  }}
+                >
+                  <span style={{ width: 8, height: 8, borderRadius: 4, background: C.accent, boxShadow: "0 0 12px 3px rgba(49,77,208,0.6)" }} />
                   STEP {c.step}
                 </div>
-                <div style={{ fontSize: 96, fontWeight: 700, color: C.black, lineHeight: 1.1, marginTop: 4 }}>
-                  <MaskWord p={pin}>{c.text}</MaskWord>
+                <div style={{ fontSize: 100, fontWeight: 600, color: C.black, lineHeight: 1.08, marginTop: 10, whiteSpace: "nowrap" }}>
+                  <MaskWord p={pin}>
+                    {c.text.slice(0, last + 1)}
+                    <GradText gradient={G.lightText} style={{ fontFamily: SERIF, fontStyle: "italic", fontWeight: 400, fontSize: 116, letterSpacing: "-0.03em" }}>
+                      {c.text.slice(last + 1)}
+                    </GradText>
+                  </MaskWord>
                 </div>
               </div>
             );
@@ -69,8 +92,8 @@ export const Demo: React.FC = () => {
             position: "absolute",
             left: BILL.left,
             top: BILL.top,
-            translate: interpolate(frame, [0, 12], ["-620px 60px", "0px 0px"], { ...CLAMP, easing: OUT }),
-            rotate: interpolate(frame, [0, 12], ["-14deg", "-2deg"], { ...CLAMP, easing: SNAP }),
+            translate: interpolate(frame, [0, 16], ["-620px 60px", "0px 0px"], { ...CLAMP, easing: OUT }),
+            rotate: interpolate(frame, [0, 16], ["-14deg", "-2deg"], { ...CLAMP, easing: SNAP }),
           }}
         >
           <BillCard
@@ -80,7 +103,7 @@ export const Demo: React.FC = () => {
             gstin="09AAACS4821F1Z5"
             total="₹48,260"
             highlight={frame >= 10 ? scan : -1}
-            style={{ boxShadow: "0 30px 70px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.08)" }}
+            style={{ boxShadow: "0 40px 90px rgba(49,77,208,0.22), 0 14px 30px rgba(10,16,56,0.12), 0 0 0 1px rgba(10,16,56,0.06)" }}
           />
           {/* scan beam */}
           {frame >= 10 && frame <= 40 ? (
@@ -92,8 +115,8 @@ export const Demo: React.FC = () => {
                   right: -20,
                   top: scan * BILL.width * 1.33 - 3,
                   height: 6,
-                  background: C.accent,
-                  boxShadow: `0 0 30px 8px rgba(49,77,208,0.55)`,
+                  background: `linear-gradient(90deg, rgba(49,77,208,0) 0%, ${C.indigo400} 20%, ${C.accent} 50%, ${C.indigo400} 80%, rgba(49,77,208,0) 100%)`,
+                  boxShadow: `0 0 36px 10px rgba(72,100,240,0.55)`,
                   borderRadius: 3,
                   opacity: interpolate(frame, [36, 40], [1, 0], CLAMP),
                 }}
@@ -105,8 +128,8 @@ export const Demo: React.FC = () => {
                   right: 0,
                   top: 0,
                   height: scan * BILL.width * 1.33,
-                  background: "linear-gradient(180deg, rgba(49,77,208,0) 60%, rgba(49,77,208,0.10) 100%)",
-                  borderRadius: 14,
+                  background: "linear-gradient(180deg, rgba(49,77,208,0) 55%, rgba(72,100,240,0.16) 100%)",
+                  borderRadius: 16,
                   opacity: interpolate(frame, [36, 44], [1, 0], CLAMP),
                 }}
               />
@@ -115,27 +138,30 @@ export const Demo: React.FC = () => {
         </Interactive.Div>
 
         {/* beams from bill fields to extracted rows */}
-        <svg width={1080} height={1350} style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+        <svg width={1080} height={1350} style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "visible" }}>
+          <defs>
+            <linearGradient id="beam" x1="0" x2="1" y1="0" y2="0">
+              <stop offset="0" stopColor={C.indigo400} />
+              <stop offset="1" stopColor={C.accent} />
+            </linearGradient>
+            <filter id="beamGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="6" />
+            </filter>
+          </defs>
           {BEAMS.map((b, i) => {
             const at = ROW_AT(b.row) - 2;
-            const p = interpolate(frame, [at, at + 6], [0, 1], { ...CLAMP, easing: OUT });
-            const fade = interpolate(frame, [at + 10, at + 20], [1, 0], CLAMP);
+            const p = interpolate(frame, [at, at + 9], [0, 1], { ...CLAMP, easing: OUT });
+            const fade = interpolate(frame, [at + 10, at + 22], [1, 0], CLAMP);
             const y2 = PANEL.top + 96 + b.row * ROW_H + ROW_H / 2;
             const x1 = BILL.left + BILL.width - 30;
             const x2 = PANEL.left + 10;
+            const d = `M ${x1} ${b.y} C ${x1 + 60} ${b.y}, ${x2 - 60} ${y2}, ${x2} ${y2}`;
+            const common = { d, fill: "none", strokeLinecap: "round" as const, pathLength: 1, strokeDasharray: 1, strokeDashoffset: 1 - p, opacity: frame >= at ? fade : 0 };
             return (
-              <path
-                key={i}
-                d={`M ${x1} ${b.y} C ${x1 + 60} ${b.y}, ${x2 - 60} ${y2}, ${x2} ${y2}`}
-                fill="none"
-                stroke={C.accent}
-                strokeWidth={4}
-                strokeLinecap="round"
-                pathLength={1}
-                strokeDasharray={1}
-                strokeDashoffset={1 - p}
-                opacity={frame >= at ? fade : 0}
-              />
+              <g key={i}>
+                <path {...common} stroke={C.indigo400} strokeWidth={10} filter="url(#beamGlow)" />
+                <path {...common} stroke="url(#beam)" strokeWidth={4} />
+              </g>
             );
           })}
         </svg>
@@ -148,12 +174,11 @@ export const Demo: React.FC = () => {
             left: PANEL.left,
             top: PANEL.top,
             width: PANEL.width,
-            background: C.white,
-            borderRadius: 22,
-            boxShadow: "0 30px 80px rgba(0,0,0,0.14), 0 0 0 1px rgba(0,0,0,0.08)",
+            ...glassLight,
+            borderRadius: 26,
             overflow: "hidden",
-            opacity: interpolate(frame, [28, 36], [0, 1], CLAMP),
-            translate: interpolate(frame, [28, 40], ["120px 0px", "0px 0px"], { ...CLAMP, easing: OUT }),
+            opacity: interpolate(frame, [28, 38], [0, 1], CLAMP),
+            translate: interpolate(frame, [28, 44], ["120px 0px", "0px 0px"], { ...CLAMP, easing: OUT }),
           }}
         >
           <div
@@ -166,16 +191,17 @@ export const Demo: React.FC = () => {
               borderBottom: `1px solid ${C.hair}`,
             }}
           >
-            <div style={{ fontSize: 30, fontWeight: 700 }}>Purchase voucher</div>
+            <div style={{ fontSize: 30, fontWeight: 600, letterSpacing: "-0.03em" }}>Purchase voucher</div>
             <div
               style={{
-                fontSize: 22,
-                fontWeight: 700,
+                fontSize: 21,
+                fontWeight: 600,
                 color: C.white,
-                background: C.accent,
+                background: G.accent,
                 borderRadius: 999,
                 padding: "8px 16px",
-                letterSpacing: "0.02em",
+                letterSpacing: "0.04em",
+                boxShadow: "0 6px 18px rgba(49,77,208,0.4), inset 0 1px 0 rgba(255,255,255,0.35)",
               }}
             >
               AI
@@ -183,8 +209,9 @@ export const Demo: React.FC = () => {
           </div>
           {ROWS.map((r, i) => {
             const at = ROW_AT(i);
-            const p = interpolate(frame, [at, at + 6], [0, 1], { ...CLAMP, easing: OUT });
+            const p = interpolate(frame, [at, at + 9], [0, 1], { ...CLAMP, easing: OUT });
             const chars = Math.floor(interpolate(frame, [at, at + 8], [0, r.v.length], CLAMP));
+            const live = frame >= at && frame < at + 10;
             return (
               <div
                 key={r.k}
@@ -197,28 +224,29 @@ export const Demo: React.FC = () => {
                   borderBottom: i < ROWS.length - 1 ? `1px solid ${C.hair}` : "none",
                   opacity: p,
                   translate: `${(1 - p) * 30}px 0`,
-                  background: frame >= at && frame < at + 8 ? "rgba(49,77,208,0.06)" : "transparent",
+                  background: live ? "linear-gradient(90deg, rgba(49,77,208,0.10), rgba(49,77,208,0.02))" : "transparent",
                 }}
               >
-                <span style={{ fontSize: 24, color: C.grey, fontWeight: 500 }}>{r.k}</span>
+                <span style={{ fontSize: 24, color: C.grey, fontWeight: 500, letterSpacing: "-0.02em" }}>{r.k}</span>
                 <span style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   {r.ai ? (
                     <span
                       style={{
-                        fontSize: 17,
-                        fontWeight: 700,
+                        fontSize: 16,
+                        fontWeight: 600,
                         color: C.accent,
-                        border: `2px solid ${C.accent}`,
+                        background: "rgba(49,77,208,0.08)",
+                        border: `1.5px solid rgba(49,77,208,0.35)`,
                         borderRadius: 999,
-                        padding: "3px 10px",
-                        letterSpacing: "0.02em",
-                        opacity: interpolate(frame, [at + 6, at + 10], [0, 1], CLAMP),
+                        padding: "4px 11px",
+                        letterSpacing: "0.06em",
+                        opacity: interpolate(frame, [at + 6, at + 12], [0, 1], CLAMP),
                       }}
                     >
                       PREDICTED
                     </span>
                   ) : null}
-                  <span style={{ fontFamily: r.k === "GSTIN" || r.k === "Invoice no." ? MONO : FONT, fontSize: 25, fontWeight: 700, letterSpacing: r.k === "GSTIN" ? 0 : TRACK }}>
+                  <span style={{ fontFamily: r.k === "GSTIN" || r.k === "Invoice no." ? MONO : FONT, fontSize: r.k === "GSTIN" ? 22 : 25, fontWeight: r.k === "GSTIN" || r.k === "Invoice no." ? 500 : 600, letterSpacing: r.k === "GSTIN" || r.k === "Invoice no." ? 0 : "-0.03em" }}>
                     {r.v.slice(0, chars)}
                   </span>
                 </span>
@@ -236,24 +264,28 @@ export const Demo: React.FC = () => {
             right: 80,
             top: 1060,
             height: 124,
-            borderRadius: 26,
-            background: posted ? C.accent : C.black,
+            borderRadius: 30,
+            background: posted ? G.accent : `linear-gradient(180deg, #1B1F3A 0%, ${C.black} 100%)`,
             color: C.white,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             gap: 18,
             fontSize: 46,
-            fontWeight: 700,
-            opacity: interpolate(frame, [62, 70], [0, 1], CLAMP),
-            translate: interpolate(frame, [62, 72], ["0px 60px", "0px 0px"], { ...CLAMP, easing: OUT }),
-            scale: interpolate(frame, [CLICK, CLICK + 2, CLICK + 9], [1, 0.94, 1], { ...CLAMP, easing: [OUT, SNAP] }),
+            fontWeight: 600,
+            letterSpacing: "-0.03em",
+            boxShadow: posted
+              ? "0 24px 60px rgba(49,77,208,0.5), 0 0 0 1px rgba(255,255,255,0.1) inset, 0 2px 0 rgba(255,255,255,0.3) inset"
+              : "0 20px 50px rgba(10,16,56,0.35), 0 2px 0 rgba(255,255,255,0.12) inset",
+            opacity: interpolate(frame, [62, 72], [0, 1], CLAMP),
+            translate: interpolate(frame, [62, 76], ["0px 60px", "0px 0px"], { ...CLAMP, easing: OUT }),
+            scale: interpolate(frame, [CLICK, CLICK + 3, CLICK + 12], [1, 0.95, 1], { ...CLAMP, easing: [OUT, SNAP] }),
           }}
         >
           {posted ? (
             <>
-              <span style={{ scale: interpolate(frame, [CLICK + 2, CLICK + 9], [0.4, 1], { ...CLAMP, easing: SNAP }) }}>
-                <Check size={54} progress={interpolate(frame, [CLICK + 2, CLICK + 10], [0, 1], CLAMP)} stroke={3.4} />
+              <span style={{ scale: interpolate(frame, [CLICK + 2, CLICK + 12], [0.4, 1], { ...CLAMP, easing: SNAP }) }}>
+                <Check size={54} progress={interpolate(frame, [CLICK + 2, CLICK + 12], [0, 1], CLAMP)} stroke={3.4} />
               </span>
               Posted to Tally
             </>
@@ -265,26 +297,30 @@ export const Demo: React.FC = () => {
         {/* ring pulse + confetti burst from the button */}
         {posted ? (
           <>
-            <div
-              style={{
-                position: "absolute",
-                left: 80,
-                right: 80,
-                top: 1060,
-                height: 124,
-                borderRadius: 26,
-                border: `4px solid ${C.accent}`,
-                scale: interpolate(frame, [CLICK + 2, CLICK + 20], [1, 1.25], { ...CLAMP, easing: OUT }),
-                opacity: interpolate(frame, [CLICK + 2, CLICK + 20], [0.8, 0], CLAMP),
-              }}
-            />
-            {new Array(26).fill(0).map((_, i) => {
+            {[0, 5].map((d) => (
+              <div
+                key={d}
+                style={{
+                  position: "absolute",
+                  left: 80,
+                  right: 80,
+                  top: 1060,
+                  height: 124,
+                  borderRadius: 30,
+                  border: `${d ? 2 : 4}px solid ${C.accent}`,
+                  scale: interpolate(frame, [CLICK + 2 + d, CLICK + 24 + d], [1, 1.28], { ...CLAMP, easing: OUT }),
+                  opacity: interpolate(frame, [CLICK + 2 + d, CLICK + 24 + d], [0.7, 0], CLAMP),
+                }}
+              />
+            ))}
+            {new Array(30).fill(0).map((_, i) => {
               const t = frame - (CLICK + 2);
               const ang = random(`ca${i}`) * Math.PI - Math.PI;
               const sp = 14 + random(`cs${i}`) * 22;
               const x = 540 + Math.cos(ang) * sp * t;
               const y = 1122 + Math.sin(ang) * sp * t + 0.9 * t * t;
               const size = 10 + random(`cz${i}`) * 14;
+              const col = [C.accent, C.indigo400, C.indigo300, C.black][i % 4];
               return (
                 <div
                   key={i}
@@ -294,7 +330,8 @@ export const Demo: React.FC = () => {
                     top: y,
                     width: size,
                     height: size * (random(`cr${i}`) > 0.5 ? 1 : 0.45),
-                    background: i % 3 === 0 ? C.black : C.accent,
+                    borderRadius: random(`cq${i}`) > 0.6 ? size : 3,
+                    background: col,
                     rotate: `${t * (random(`cw${i}`) * 30 - 15)}deg`,
                     opacity: interpolate(t, [18, 30], [1, 0], CLAMP),
                   }}
@@ -312,13 +349,15 @@ export const Demo: React.FC = () => {
             left: 0,
             top: 0,
             translate: interpolate(frame, [66, 86], ["1040px 1380px", "905px 1128px"], { ...CLAMP, easing: IN_OUT }),
-            scale: interpolate(frame, [CLICK, CLICK + 2, CLICK + 6], [1, 0.82, 1], CLAMP),
+            scale: interpolate(frame, [CLICK, CLICK + 2, CLICK + 7], [1, 0.82, 1], CLAMP),
             opacity: interpolate(frame, [66, 70, 94, 99], [0, 1, 1, 0], CLAMP),
           }}
         >
           <Cursor size={78} />
         </Interactive.Div>
       </AbsoluteFill>
+
+      <Bloom at={CLICK + 2} color={C.indigo400} strength={0.45} dur={20} x={50} y={85} />
     </AbsoluteFill>
   );
 };
