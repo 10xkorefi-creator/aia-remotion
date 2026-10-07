@@ -11,7 +11,7 @@ import { Reveal } from "./scenes/Reveal";
 import { WhatsApp } from "./scenes/WhatsApp";
 import { C } from "./theme";
 
-// Hard cuts only: every cut lands on a beat of the 120 BPM soundtrack.
+// Every cut lands on a beat of the 120 BPM soundtrack; scenes ease in with soft blooms instead of hard flashes.
 export const LaunchVideo: React.FC = () => (
   <AbsoluteFill style={{ backgroundColor: C.black }}>
     <Series>

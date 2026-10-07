@@ -1,36 +1,61 @@
 import { loadFont } from "@remotion/fonts";
 import { Easing, staticFile } from "remotion";
 
-// AI Accountant brand tokens (exact hex, accent used sparingly)
+// AI Accountant brand tokens. #314DD0 stays the one true accent; the gradients below are
+// lighter / deeper shades of that same hue so everything still reads as on-brand.
 export const C = {
   white: "#FFFFFF",
   black: "#000000",
   grey: "#666666",
   accent: "#314DD0",
-  hair: "rgba(0,0,0,0.08)",
+  hair: "rgba(10,15,46,0.08)",
   paper: "#FFFFFF",
+
+  // accent ramp
+  indigo950: "#050818",
+  indigo900: "#0A1038",
+  indigo800: "#111A5E",
+  indigo700: "#1D2D9A",
+  indigo500: "#4864F0",
+  indigo400: "#6F86FF",
+  indigo300: "#A3B1FF",
+  indigo200: "#D3DAFF",
+  indigo100: "#EEF1FF",
+
+  // surfaces
+  ink: "#03040C",
+  pearl: "#F6F7FC",
 };
 
-// Helvetica Neue is the brand face; Inter is the approved substitute when unavailable.
-export const FONT = "Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif";
-export const MONO = "'JetBrains Mono', ui-monospace, monospace";
-export const TRACK = "-0.04em";
+export const G = {
+  accent: `linear-gradient(135deg, ${C.indigo400} 0%, ${C.accent} 55%, ${C.indigo700} 100%)`,
+  accentText: `linear-gradient(100deg, ${C.indigo200} 0%, ${C.indigo400} 45%, ${C.accent} 100%)`,
+  lightText: `linear-gradient(100deg, #000000 0%, #0A1038 30%, ${C.accent} 100%)`,
+  silverText: `linear-gradient(180deg, #FFFFFF 0%, #FFFFFF 40%, ${C.indigo300} 100%)`,
+};
 
-const LATIN =
-  "U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD";
-const LATIN_EXT =
-  "U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF";
+export const FONT = "Geist, 'Helvetica Neue', Helvetica, Arial, sans-serif";
+export const SERIF = "'Instrument Serif', 'Times New Roman', serif";
+export const MONO = "'Geist Mono', ui-monospace, monospace";
+export const TRACK = "-0.045em";
+export const TRACK_UI = "-0.02em";
 
-for (const w of ["400", "500", "700"]) {
-  loadFont({ family: "Inter", url: staticFile(`inter-latin-${w}-normal.woff2`), weight: w, unicodeRange: LATIN });
-  loadFont({ family: "Inter", url: staticFile(`inter-latin-ext-${w}-normal.woff2`), weight: w, unicodeRange: LATIN_EXT });
+for (const w of ["400", "500", "600", "700"]) {
+  loadFont({ family: "Geist", url: staticFile(`geist-latin-${w}-normal.woff2`), weight: w });
 }
-loadFont({ family: "JetBrains Mono", url: staticFile("jetbrains-mono-latin-500-normal.woff2"), weight: "500" });
+loadFont({ family: "Geist Mono", url: staticFile("geist-mono-latin-500-normal.woff2"), weight: "500" });
+loadFont({
+  family: "Instrument Serif",
+  url: staticFile("instrument-serif-latin-400-italic.woff2"),
+  weight: "400",
+  style: "italic",
+});
 
-// Motion language
-export const OUT = Easing.bezier(0.16, 1, 0.3, 1); // expo-out: snappy arrivals
+// Motion language: buttery expo-out arrivals, soft springs, no hard shakes.
+export const OUT = Easing.bezier(0.16, 1, 0.3, 1);
+export const OUT_SOFT = Easing.bezier(0.22, 1, 0.36, 1);
 export const IN_OUT = Easing.bezier(0.65, 0, 0.35, 1);
-export const SNAP = Easing.spring({ damping: 14, mass: 0.6 }); // slight overshoot
+export const SNAP = Easing.spring({ damping: 16, mass: 0.7 }); // gentle overshoot
 export const SOFT = Easing.spring({ damping: 200 });
 
 export const CLAMP = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as const;
@@ -38,7 +63,7 @@ export const CLAMP = { extrapolateLeft: "clamp", extrapolateRight: "clamp" } as 
 // 120 BPM @ 30fps
 export const BEAT = 15;
 
-// Scene lengths (frames). Sum = 450 = 15s
+// Scene lengths (frames). Sum = 450 = 15s. Cuts land on soundtrack hits, so don't change these.
 export const SCENES = {
   hook: 60,
   chaos: 60,
@@ -50,5 +75,6 @@ export const SCENES = {
   end: 45,
 };
 
+// 4:5 portrait, the best-performing frame for video in the X feed.
 export const W = 1080;
 export const H = 1350;
