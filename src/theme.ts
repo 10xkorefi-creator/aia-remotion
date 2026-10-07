@@ -50,5 +50,5 @@ export const SCENES = {
   end: 45,
 };
 
-export const W = 1920;
-export const H = 1080;
+export const W = 1080;
+export const H = 1350;
